@@ -27,11 +27,24 @@ jobs:
       run: |
         mkdir www
         cp index.html www/
+        cp sudokuimagen.jpg www/
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
         npx cap init "Sudoku" "com.sergiomaslow.sudoku" --web-dir=www
         npx cap add android
         npx cap sync android
+
+    - name: Instalar ImageMagick y generar Icono
+      run: |
+        sudo apt-get update && sudo apt-get install -y imagemagick
+        cd android/app/src/main/res
+        convert ../../../../../sudokuimagen.jpg -resize 48x48 mipmap-mdpi/ic_launcher.png
+        convert ../../../../../sudokuimagen.jpg -resize 72x72 mipmap-hdpi/ic_launcher.png
+        convert ../../../../../sudokuimagen.jpg -resize 96x96 mipmap-xhdpi/ic_launcher.png
+        convert ../../../../../sudokuimagen.jpg -resize 144x144 mipmap-xxhdpi/ic_launcher.png
+        convert ../../../../../sudokuimagen.jpg -resize 192x192 mipmap-xxxhdpi/ic_launcher.png
+        
+        rm -f mipmap-anydpi-v26/ic_launcher.xml
 
     - name: Construir APK
       run: |
