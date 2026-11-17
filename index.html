@@ -4,28 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Sudoku</title>
-  <!-- El icono de la pestaña web -->
+  <!-- El icono de la pestaña web (si falla, no muestra nada roto) -->
   <link rel="icon" href="sudokuimagen.jpg" />
   <style>
     :root { --trans: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    /* Paleta Oscura - Mejorada */
+    /* Paleta Oscura */
     [data-tema="oscuro"] { 
       --bg: #0f1115; --superficie: #181b21; --superficie-2: #222731;
-      --bloque-alt: #1d222a; --borde: #2a303c; --borde-fuerte: #475569; /* Más claro para que se vea */
-      --texto-fijo: #ffffff; --texto-user: #eab308; /* Dorado para tus números */
-      --texto-suave: #64748b;
+      --bloque-alt: #1d222a; --borde: #2a303c; --borde-fuerte: #475569;
+      --texto-fijo: #ffffff; --texto-user: #eab308; --texto-suave: #64748b;
       --acento: #38bdf8; --seleccion: rgba(56, 189, 248, 0.2); 
       --mismo-numero: rgba(56, 189, 248, 0.1); --error: #f43f5e;
       --sombra: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
     
-    /* Paleta Clara - Mejorada */
+    /* Paleta Clara */
     [data-tema="claro"] { 
       --bg: #e2e8f0; --superficie: #ffffff; --superficie-2: #f1f5f9;
-      --bloque-alt: #f8fafc; --borde: #cbd5e1; --borde-fuerte: #64748b; /* Más oscuro para que se vea */
-      --texto-fijo: #0f172a; --texto-user: #ca8a04; /* Dorado oscuro */
-      --texto-suave: #64748b;
+      --bloque-alt: #f8fafc; --borde: #cbd5e1; --borde-fuerte: #64748b;
+      --texto-fijo: #0f172a; --texto-user: #ca8a04; --texto-suave: #64748b;
       --acento: #0284c7; --seleccion: rgba(2, 132, 199, 0.15); 
       --mismo-numero: rgba(2, 132, 199, 0.08); --error: #e11d48;
       --sombra: 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -34,6 +32,7 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--texto-fijo); font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; transition: background var(--trans), color var(--trans); min-height: 100vh; overflow: hidden; }
     
+    /* Control de vistas (Menú y Juego) */
     .vista { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s, transform 0.3s; overflow-y: auto; }
     .oculto { opacity: 0; pointer-events: none; transform: scale(0.95); }
     
@@ -45,13 +44,11 @@
       box-shadow: 0 10px 30px var(--seleccion); 
       animation: flotar 3s ease-in-out infinite;
       object-fit: cover;
-      background: var(--superficie); /* Por si la imagen tarda en cargar */
+      background: var(--superficie);
     }
     @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
     h1.menu-titulo { font-size: 42px; letter-spacing: 12px; margin: 0; color: var(--texto-fijo); text-shadow: 0 0 30px var(--seleccion); }
-    
-    /* Corregido: Espacio abajo de la imagen */
     .sub-titulo { color: var(--texto-suave); font-size: 14px; letter-spacing: 2px; margin-top: 5px; margin-bottom: 20px; }
     
     .menu-opciones { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; }
@@ -74,12 +71,9 @@
     .barra .btn { height: 44px; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--texto-fijo); font-size: 13px; font-weight: 800; cursor: pointer; transition: all var(--trans); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .barra .btn:hover { border-color: var(--acento); color: var(--acento); }
     
-    /* Tablero corregido para que se vean las líneas */
     .tablero { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1 / 1; width: 100%; background: var(--borde-fuerte); border: 2px solid var(--borde-fuerte); border-radius: 12px; overflow: hidden; gap: 1px; box-shadow: var(--sombra); margin-top: 10px;}
     .celda { background: var(--superficie); display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5.5vw, 30px); color: var(--texto-user); cursor: pointer; transition: all 0.1s ease; }
     .celda.bloque-alt { background: var(--bloque-alt); }
-    
-    /* Líneas gruesas para separar los cuadros de 3x3 */
     .celda:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid var(--borde-fuerte); }
     .celda:nth-child(n+19):nth-child(-n+27), .celda:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--borde-fuerte); }
     
@@ -99,7 +93,6 @@
     .mensaje { text-align: center; min-height: 1.5em; margin: 10px 0 0; font-size: 15px; color: var(--texto-suave); letter-spacing: 1px; }
     .mensaje.fallo { color: var(--error); }
     
-    /* Victoria */
     .overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); opacity: 0.97; display: none; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; z-index: 10; text-align: center; padding: 20px; animation: aparecer 0.4s ease; }
     .overlay h2 { font-size: 40px; color: var(--acento); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--seleccion); margin-bottom: 10px;}
     .overlay button { padding: 14px 28px; font-size: 16px; background: var(--acento); color: var(--bg); border: none; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 20px;}
@@ -108,18 +101,13 @@
 </head>
 <body>
 
-  <!-- Botón de música -->
-  <button class="btn-musica" id="btn-musica" title="Música">🔇</button>
-
+  <!-- VISTA 1: MENÚ PRINCIPAL -->
   <div class="vista" id="menu">
-    <!-- Imagen corregida -->
     <img src="sudokuimagen.jpg" alt="Logo Sudoku" class="logo-img">
-
     <div>
       <h1 class="menu-titulo">SUDOKU</h1>
       <p class="sub-titulo">MINIMAL EDITION</p>
     </div>
-
     <div class="menu-opciones">
       <button class="btn-dificultad" data-dif="facil">Fácil</button>
       <button class="btn-dificultad activo" data-dif="medio">Medio</button>
@@ -128,6 +116,7 @@
     </div>
   </div>
 
+  <!-- VISTA 2: EL JUEGO -->
   <div class="vista oculto" id="juego">
     <div class="contenedor">
       <div class="overlay" id="overlay">
@@ -159,9 +148,7 @@
   <script>
     // --- SISTEMA DE MÚSICA ---
     let audioCtx, isPlaying = false, musicInterval;
-    const $btnMusica = document.getElementById('btn-musica');
     const $btnMusicaJuego = document.getElementById('btn-musica-juego');
-    
     const notas = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 293.66]; 
     
     function playTone(freq) {
@@ -180,14 +167,11 @@
     function toggleMusica() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
-
       if (isPlaying) {
         clearInterval(musicInterval);
-        $btnMusica.textContent = '🔇';
         $btnMusicaJuego.textContent = '🔇 Música';
         isPlaying = false;
       } else {
-        $btnMusica.textContent = '🔊';
         $btnMusicaJuego.textContent = '🔊 Música';
         isPlaying = true;
         let i = 0;
@@ -198,8 +182,6 @@
         }, 800); 
       }
     }
-
-    $btnMusica.addEventListener('click', toggleMusica);
     $btnMusicaJuego.addEventListener('click', toggleMusica);
 
     // --- LÓGICA DEL SUDOKU ---
@@ -217,8 +199,7 @@
       document.getElementById('juego').classList.add('oculto');
       document.getElementById('menu').classList.remove('oculto');
       $overlay.style.display='none';
-      // Pausar música al salir
-      if (isPlaying) toggleMusica(); 
+      if (isPlaying) toggleMusica(); // Pausar música al salir
     }
 
     document.querySelectorAll('.btn-dificultad').forEach(btn => {
