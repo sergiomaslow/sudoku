@@ -1,0 +1,9 @@
+{
+  "appId": "com.usuario.sudoku",
+  "appName": "Sudoku",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

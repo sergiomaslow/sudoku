@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="oscuro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>Sudoku</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="contenedor">
+    <header class="cabecera">
+      <h1>SUDOKU</h1>
+      <button id="btn-tema" class="btn-icono" aria-label="Cambiar tema">◐</button>
+    </header>
+
+    <div class="barra">
+      <select id="dificultad" aria-label="Dificultad">
+        <option value="facil">Fácil</option>
+        <option value="medio" selected>Medio</option>
+        <option value="dificil">Difícil</option>
+      </select>
+      <button id="btn-nuevo" class="btn">Nuevo</button>
+      <button id="btn-borrar" class="btn">Borrar</button>
+      <button id="btn-verificar" class="btn">Verificar</button>
+    </div>
+
+    <div class="tablero" id="tablero" role="grid" aria-label="Tablero de sudoku"></div>
+
+    <div class="numeros" id="numeros" role="group" aria-label="Números disponibles"></div>
+
+    <p id="mensaje" class="mensaje" aria-live="polite"></p>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
