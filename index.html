@@ -3,9 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0a0a0a" />
   <title>Sudoku</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    :root { --trans: 0.18s ease; }
+    [data-tema="oscuro"] { --bg: #0a0a0a; --superficie: #131313; --superficie-2: #1c1c1c; --borde: #2a2a2a; --borde-fuerte: #3d3d3d; --texto: #f5f5f5; --texto-suave: #8a8a8a; --acento: #00e0ff; --acento-suave: rgba(0, 224, 255, 0.14); --error: #ff4d6d; --exito: #00ffa3; --sombra: 0 0 24px rgba(0, 224, 255, 0.08); }
+    [data-tema="claro"] { --bg: #f4f6f8; --superficie: #ffffff; --superficie-2: #eef1f4; --borde: #d8dee4; --borde-fuerte: #b6c0c9; --texto: #0a0a0a; --texto-suave: #6b7480; --acento: #0077ff; --acento-suave: rgba(0, 119, 255, 0.12); --error: #d90429; --exito: #00a86b; --sombra: 0 0 24px rgba(0, 119, 255, 0.08); }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--texto); font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; transition: background var(--trans), color var(--trans); min-height: 100vh; }
+    body { display: flex; justify-content: center; padding: 16px; }
+    .contenedor { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 14px; }
+    .cabecera { display: flex; justify-content: space-between; align-items: center; }
+    h1 { margin: 0; font-size: clamp(22px, 6vw, 30px); letter-spacing: 6px; }
+    h1::after { content: ''; display: block; height: 3px; width: 40px; margin-top: 4px; background: var(--acento); border-radius: 2px; box-shadow: var(--sombra); }
+    .btn-icono { background: var(--superficie-2); border: 1.5px solid var(--borde); color: var(--texto); width: 42px; height: 42px; border-radius: 12px; font-size: 18px; cursor: pointer; transition: all var(--trans); }
+    .btn-icono:hover { border-color: var(--acento); color: var(--acento); }
+    .barra { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+    .barra select, .barra .btn { height: 42px; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--texto); font-size: 13px; font-weight: 700; cursor: pointer; transition: all var(--trans); font-family: inherit; }
+    .barra select { padding: 0 8px; }
+    .barra .btn:hover, .barra select:hover { border-color: var(--acento); color: var(--acento); }
+    .barra .btn:active { transform: scale(0.96); }
+    .tablero { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1 / 1; width: 100%; background: var(--borde-fuerte); border: 2px solid var(--borde-fuerte); border-radius: 14px; overflow: hidden; gap: 1px; user-select: none; box-shadow: var(--sombra); }
+    .celda { background: var(--superficie); display: flex; align-items: center; justify-content: center; font-size: clamp(15px, 4.5vw, 26px); color: var(--acento); cursor: pointer; transition: background var(--trans), color var(--trans); }
+    .celda:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid var(--borde-fuerte); }
+    .celda:nth-child(n+19):nth-child(-n+27), .celda:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--borde-fuerte); }
+    .celda.fija { color: var(--texto); background: var(--superficie-2); }
+    .celda.seleccionada { background: var(--acento-suave); color: var(--acento); }
+    .celda.resaltada { background: var(--acento-suave); }
+    .celda.error { color: var(--error); background: rgba(255, 77, 109, 0.12); }
+    .numeros { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+    .numeros button { aspect-ratio: 1 / 1; border-radius: 10px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--acento); font-size: clamp(14px, 3.8vw, 20px); font-weight: 800; cursor: pointer; transition: all var(--trans); font-family: inherit; }
+    .numeros button:hover { border-color: var(--acento); }
+    .numeros button:active { transform: scale(0.94); }
+    .numeros button.agotado { opacity: 0.25; pointer-events: none; }
+    .mensaje { text-align: center; min-height: 1.4em; margin: 0; font-size: 14px; color: var(--texto-suave); }
+    .mensaje.exito { color: var(--exito); }
+    .mensaje.fallo { color: var(--error); }
+    @media (max-width: 380px) { .barra { grid-template-columns: 1fr 1fr; } .barra select { grid-column: span 2; } }
+  </style>
 </head>
 <body>
   <main class="contenedor">
@@ -13,9 +47,8 @@
       <h1>SUDOKU</h1>
       <button id="btn-tema" class="btn-icono" aria-label="Cambiar tema">◐</button>
     </header>
-
     <div class="barra">
-      <select id="dificultad" aria-label="Dificultad">
+      <select id="dificultad">
         <option value="facil">Fácil</option>
         <option value="medio" selected>Medio</option>
         <option value="dificil">Difícil</option>
@@ -24,14 +57,12 @@
       <button id="btn-borrar" class="btn">Borrar</button>
       <button id="btn-verificar" class="btn">Verificar</button>
     </div>
-
-    <div class="tablero" id="tablero" role="grid" aria-label="Tablero de sudoku"></div>
-
-    <div class="numeros" id="numeros" role="group" aria-label="Números disponibles"></div>
-
-    <p id="mensaje" class="mensaje" aria-live="polite"></p>
+    <div class="tablero" id="tablero"></div>
+    <div class="numeros" id="numeros"></div>
+    <p id="mensaje" class="mensaje"></p>
   </main>
-
-  <script src="./app.js"></script>
+  <script>
+    const TAM=9,NRS=[1,2,3,4,5,6,7,8,9];let puzzle=[],solucion=[],celdasFijas=new Set(),seleccionada=null,errores=new Set();const $tablero=document.getElementById('tablero'),$numeros=document.getElementById('numeros'),$mensaje=document.getElementById('mensaje'),$dificultad=document.getElementById('dificultad');function tableroVacio(){return Array.from({length:TAM},()=>Array(TAM).fill(0))}function esValido(t,f,c,n){for(let i=0;i<TAM;i++){if(i!==c&&t[f][i]===n)return false;if(i!==f&&t[i][c]===n)return false}const f0=Math.floor(f/3)*3,c0=Math.floor(c/3)*3;for(let ff=f0;ff<f0+3;ff++)for(let cc=c0;cc<c0+3;cc++)if((ff!==f||cc!==c)&&t[ff][cc]===n)return false;return true}function mezclar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}function resolver(t){for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(t[f][c]===0){for(const n of mezclar([...NRS])){if(esValido(t,f,c,n)){t[f][c]=n;if(resolver(t))return true;t[f][c]=0}}return false}return true}function generarJuego(d){const s=tableroVacio();resolver(s);const p=s.map(f=>[...f]),v={facil:40,medio:50,dificil:58}[d]??50;let q=0;const c=mezclar(Array.from({length:81},(_,i)=>[Math.floor(i/9),i%9]));for(const[f,cc]of c){if(q>=v)break;if(p[f][cc]!==0){p[f][cc]=0;q++}}return{puz:p,sol:s}}function renderTablero(){const frag=document.createDocumentFragment();for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++){const celda=document.createElement('div');celda.className='celda';celda.dataset.f=f;celda.dataset.c=c;const v=puzzle[f][c];if(celdasFijas.has(`${f}-${c}`)){celda.textContent=v;celda.classList.add('fija')}else if(v!==0)celda.textContent=v;if(seleccionada){if(seleccionada.f===f&&seleccionada.c===c)celda.classList.add('seleccionada');else if(seleccionada.f===f||seleccionada.c===c||(Math.floor(seleccionada.f/3)===Math.floor(f/3)&&Math.floor(seleccionada.c/3)===Math.floor(c/3)))celda.classList.add('resaltada')}if(errores.has(`${f}-${c}`))celda.classList.add('error');frag.appendChild(celda)}$tablero.innerHTML='';$tablero.appendChild(frag)}function renderNumeros(){const conteo=Array(10).fill(0);for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puzzle[f][c]!==0)conteo[puzzle[f][c]]++;$numeros.innerHTML='';for(const n of NRS){const b=document.createElement('button');b.textContent=n;b.dataset.n=n;if(conteo[n]>=9)b.classList.add('agotado');$numeros.appendChild(b)}}function nuevoJuego(){const{puz,sol}=generarJuego($dificultad.value);puzzle=puz;solucion=sol;celdasFijas.clear();for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puz[f][c]!==0)celdasFijas.add(`${f}-${c}`);seleccionada=null;errores.clear();$mensaje.textContent='';$mensaje.className='mensaje';renderTablero();renderNumeros()}function mostrarMensaje(t,tipo=''){$mensaje.textContent=t;$mensaje.className='mensaje '+tipo}function comprobarVictoria(){if(puzzle.flat().filter(v=>v===0).length===0&&errores.size===0)mostrarMensaje('¡Felicidades! Sudoku completado 🎉','exito')}$tablero.addEventListener('click',(e)=>{const celda=e.target.closest('.celda');if(!celda)return;const f=+celda.dataset.f,c=+celda.dataset.c;if(celdasFijas.has(`${f}-${c}`))return;if(seleccionada&&seleccionada.f===f&&seleccionada.c===c)seleccionada=null;else seleccionada={f,c};renderTablero()});$numeros.addEventListener('click',(e)=>{const btn=e.target.closest('button');if(!btn||!seleccionada)return;const n=+btn.dataset.n,{f,c}=seleccionada;if(n!==solucion[f][c]){errores.add(`${f}-${c}`);mostrarMensaje('Ese número no va ahí','fallo')}else{errores.delete(`${f}-${c}`);mostrarMensaje('')}puzzle[f][c]=n;seleccionada=null;renderTablero();renderNumeros();comprobarVictoria()});document.getElementById('btn-nuevo').addEventListener('click',nuevoJuego);document.getElementById('btn-borrar').addEventListener('click',()=>{if(!seleccionada)return;const{f,c}=seleccionada;if(celdasFijas.has(`${f}-${c}`))return;puzzle[f][c]=0;errores.delete(`${f}-${c}`);renderTablero();renderNumeros()});document.getElementById('btn-verificar').addEventListener('click',()=>{const vacias=puzzle.flat().filter(v=>v===0).length;if(vacias>0)mostrarMensaje(`Faltan ${vacias} celdas`,'fallo');else if(errores.size>0)mostrarMensaje('Hay errores en el tablero','fallo');else mostrarMensaje('¡Todo correcto! 🎉','exito')});const $btnTema=document.getElementById('btn-tema'),temaGuardado=localStorage.getItem('sudoku-tema')||'oscuro';document.documentElement.setAttribute('data-tema',temaGuardado);$btnTema.addEventListener('click',()=>{const actual=document.documentElement.getAttribute('data-tema'),nuevo=actual==='oscuro'?'claro':'oscuro';document.documentElement.setAttribute('data-tema',nuevo);localStorage.setItem('sudoku-tema',nuevo)});nuevoJuego();
+  </script>
 </body>
 </html>
