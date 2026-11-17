@@ -37,6 +37,12 @@ jobs:
     - name: Construir APK
       run: |
         cd android
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
+        
+        # Esto es la magia para ignorar los archivos duplicados
+        echo "configurations.all { resolutionStrategy { force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24' } }" >> app/build.gradle
+        
         chmod +x gradlew
         ./gradlew assembleDebug
 
