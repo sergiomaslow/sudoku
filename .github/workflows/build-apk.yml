@@ -28,7 +28,7 @@ jobs:
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "Sudoku" "com.sergiomaslow.sudoku" --web-dir=. --no-interactive
+        npx cap init "Sudoku" "com.sergiomaslow.sudoku" --web-dir=.
         npx cap add android
 
     - name: Construir APK
