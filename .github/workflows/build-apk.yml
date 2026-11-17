@@ -1,0 +1,44 @@
+name: Compilar APK de Sudoku
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar código
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Configurar Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Preparar Capacitor y Android
+      run: |
+        npm init -y
+        npm install @capacitor/core @capacitor/cli @capacitor/android
+        npx cap init "Sudoku" "com.sergiomaslow.sudoku" --web-dir=. --no-interactive
+        npx cap add android
+
+    - name: Construir APK
+      run: |
+        cd android
+        chmod +x gradlew
+        ./gradlew assembleDebug
+
+    - name: Guardar APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sudoku-APK
+        path: android/app/build/outputs/apk/debug/app-debug.apk
