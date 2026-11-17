@@ -1,220 +1,49 @@
-<!DOCTYPE html>
-<html lang="es" data-tema="oscuro">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Sudoku</title>
-  <style>
-    :root { --trans: 0.2s ease; }
-    /* Paleta Oscura - Colores más sutiles y atractivos */
-    [data-tema="oscuro"] { 
-      --bg: #080808; --superficie: #121212; --superficie-2: #1e1e1e; 
-      --borde: #2a2a2a; --borde-fuerte: #444; 
-      --texto-fijo: #ffffff; --texto-user: #00e0ff; --texto-suave: #888; 
-      --acento: #00e0ff; --seleccion: rgba(0, 224, 255, 0.15); --error: #ff4d6d; 
-      --sombra: 0 4px 20px rgba(0, 0, 0, 0.5); 
-    }
-    /* Paleta Clara - Colores más sutiles y atractivos */
-    [data-tema="claro"] { 
-      --bg: #f7f9fa; --superficie: #ffffff; --superficie-2: #f0f3f6; 
-      --borde: #e0e6ed; --borde-fuerte: #b0bcc9; 
-      --texto-fijo: #1a1a1a; --texto-user: #0077ff; --texto-suave: #7a8a9a; 
-      --acento: #0077ff; --seleccion: rgba(0, 119, 255, 0.12); --error: #d90429; 
-      --sombra: 0 4px 20px rgba(0, 0, 0, 0.05); 
-    }
-    
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--texto-fijo); font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; transition: background var(--trans), color var(--trans); min-height: 100vh; }
-    
-    /* AQUÍ BAJAMOS MÁS EL JUEGO (Padding superior de 60px) */
-    body { display: flex; justify-content: center; padding: 60px 16px 20px; }
-    
-    .contenedor { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 16px; position: relative; }
-    
-    .cabecera { display: flex; justify-content: space-between; align-items: center; }
-    h1 { margin: 0; font-size: clamp(24px, 6vw, 32px); letter-spacing: 8px; font-weight: 900; }
-    h1::after { content: ''; display: block; height: 4px; width: 50px; margin-top: 6px; background: var(--acento); border-radius: 4px; }
-    .btn-icono { background: var(--superficie-2); border: 1.5px solid var(--borde); color: var(--texto-fijo); width: 44px; height: 44px; border-radius: 12px; font-size: 20px; cursor: pointer; transition: all var(--trans); }
-    .btn-icono:hover { border-color: var(--acento); color: var(--acento); }
-    
-    .barra { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
-    .barra select, .barra .btn { height: 44px; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--texto-fijo); font-size: 13px; font-weight: 800; cursor: pointer; transition: all var(--trans); font-family: inherit; }
-    .barra select { padding: 0 8px; }
-    .barra .btn:hover, .barra select:hover { border-color: var(--acento); color: var(--acento); }
-    .barra .btn:active { transform: scale(0.95); }
-    
-    .tablero { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1 / 1; width: 100%; background: var(--borde-fuerte); border: 2px solid var(--borde-fuerte); border-radius: 16px; overflow: hidden; gap: 1px; user-select: none; box-shadow: var(--sombra); }
-    
-    .celda { background: var(--superficie); display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 28px); color: var(--texto-user); cursor: pointer; transition: background var(--trans), color var(--trans); }
-    
-    /* Líneas sutiles */
-    .celda:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid var(--borde-fuerte); }
-    .celda:nth-child(n+19):nth-child(-n+27), .celda:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--borde-fuerte); }
-    
-    .celda.fija { color: var(--texto-fijo); background: var(--superficie-2); }
-    .celda.resaltada { background: var(--seleccion); }
-    .celda.seleccionada { background: var(--seleccion); box-shadow: inset 0 0 0 2px var(--acento); }
-    
-    /* Colores minimalistas: Error en rojo, el resto mantiene su color */
-    .celda.error { color: var(--error); background: rgba(255, 77, 109, 0.1); }
-    
-    .numeros { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-top: 10px; }
-    .numeros button { aspect-ratio: 1 / 1; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--acento); font-size: clamp(16px, 4vw, 22px); font-weight: 900; cursor: pointer; transition: all var(--trans); font-family: inherit; }
-    
-    /* Efecto al presionar un número de abajo */
-    .numeros button:hover { border-color: var(--acento); background: var(--seleccion); }
-    .numeros button:active { transform: scale(0.9); }
-    .numeros button.agotado { opacity: 0.2; pointer-events: none; }
-    
-    .mensaje { text-align: center; min-height: 1.5em; margin: 10px 0 0; font-size: 15px; color: var(--texto-suave); letter-spacing: 1px; }
-    .mensaje.fallo { color: var(--error); }
-    
-    .overlay-ganaste { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); opacity: 0.97; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; z-index: 10; display: none; text-align: center; padding: 20px; animation: aparecer 0.4s ease; }
-    .overlay-ganaste h2 { font-size: 36px; color: var(--acento); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;}
-    .overlay-ganaste p { color: var(--texto-suave); margin-bottom: 30px; font-size: 16px; }
-    .overlay-ganaste button { padding: 12px 24px; font-size: 16px; background: var(--acento); color: #000; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; transition: transform 0.2s; }
-    .overlay-ganaste button:active { transform: scale(0.95); }
-    @keyframes aparecer { from { opacity: 0; transform: scale(0.95); } to { opacity: 0.97; transform: scale(1); } }
+name: Compilar APK
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-    @media (max-width: 380px) { .barra { grid-template-columns: 1fr 1fr; } .barra select { grid-column: span 2; } }
-  </style>
-</head>
-<body>
-  <main class="contenedor">
-    <div class="overlay-ganaste" id="overlay">
-      <h2>¡Excelente! 🏆</h2>
-      <p>Has resuelto el Sudoku.</p>
-      <button onclick="document.getElementById('overlay').style.display='none'; document.getElementById('btn-nuevo').click();">Jugar de nuevo</button>
-    </div>
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Descargar código
+      uses: actions/checkout@v4
 
-    <header class="cabecera">
-      <h1>SUDOKU</h1>
-      <button id="btn-tema" class="btn-icono" aria-label="Cambiar tema">◐</button>
-    </header>
-    <div class="barra">
-      <select id="dificultad">
-        <option value="facil">Fácil</option>
-        <option value="medio" selected>Medio</option>
-        <option value="dificil">Difícil</option>
-      </select>
-      <button id="btn-nuevo" class="btn">Nuevo</button>
-      <button id="btn-borrar" class="btn">Borrar</button>
-      <button id="btn-verificar" class="btn">Verificar</button>
-    </div>
-    <div class="tablero" id="tablero"></div>
-    <div class="numeros" id="numeros"></div>
-    <p id="mensaje" class="mensaje"></p>
-  </main>
-  <script>
-    const TAM=9,NRS=[1,2,3,4,5,6,7,8,9];
-    let puzzle=[],solucion=[],celdasFijas=new Set(),seleccionada=null,errores=new Set();
-    const $tablero=document.getElementById('tablero'),$numeros=document.getElementById('numeros'),$mensaje=document.getElementById('mensaje'),$dificultad=document.getElementById('dificultad'),$overlay=document.getElementById('overlay');
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-    function tableroVacio(){return Array.from({length:TAM},()=>Array(TAM).fill(0))}
-    function esValido(t,f,c,n){for(let i=0;i<TAM;i++){if(i!==c&&t[f][i]===n)return false;if(i!==f&&t[i][c]===n)return false}const f0=Math.floor(f/3)*3,c0=Math.floor(c/3)*3;for(let ff=f0;ff<f0+3;ff++)for(let cc=c0;cc<c0+3;cc++)if((ff!==f||cc!==c)&&t[ff][cc]===n)return false;return true}
-    function mezclar(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-    function resolver(t){for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(t[f][c]===0){for(const n of mezclar([...NRS])){if(esValido(t,f,c,n)){t[f][c]=n;if(resolver(t))return true;t[f][c]=0}}return false}return true}
-    
-    // Ajuste de dificultad: Más números quitados = Más difícil
-    function generarJuego(d){
-      const s=tableroVacio();resolver(s);
-      const p=s.map(f=>[...f]);
-      const cantQuitar={facil:40,medio:48,dificil:56}[d]||48; // Fácil quita 40, Medio 48, Difícil 56
-      let q=0;const c=mezclar(Array.from({length:81},(_,i)=>[Math.floor(i/9),i%9]));
-      for(const[f,cc]of c){if(q>=cantQuitar)break;if(p[f][cc]!==0){p[f][cc]=0;q++}}
-      return{puz:p,sol:s}
-    }
-    
-    function renderTablero(){
-      const frag=document.createDocumentFragment();
-      for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++){
-        const celda=document.createElement('div');celda.className='celda';celda.dataset.f=f;celda.dataset.c=c;
-        const v=puzzle[f][c];
-        
-        if(celdasFijas.has(`${f}-${c}`)){celda.textContent=v;celda.classList.add('fija')}
-        else if(v!==0){celda.textContent=v;}
-        
-        if(seleccionada){
-          if(seleccionada.f===f&&seleccionada.c===c)celda.classList.add('seleccionada');
-          else if(seleccionada.f===f||seleccionada.c===c||(Math.floor(seleccionada.f/3)===Math.floor(f/3)&&Math.floor(seleccionada.c/3)===Math.floor(c/3)))celda.classList.add('resaltada')
-        }
-        
-        if(errores.has(`${f}-${c}`))celda.classList.add('error');
-        frag.appendChild(celda);
-      }
-      $tablero.innerHTML='';$tablero.appendChild(frag);
-    }
-    
-    function renderNumeros(){
-      const conteo=Array(10).fill(0);
-      for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puzzle[f][c]!==0)conteo[puzzle[f][c]]++;
-      $numeros.innerHTML='';
-      for(const n of NRS){
-        const b=document.createElement('button');b.textContent=n;b.dataset.n=n;
-        if(conteo[n]>=9)b.classList.add('agotado');
-        
-        // Iluminar el botón del número si hay una celda seleccionada con ese número
-        if(seleccionada && puzzle[seleccionada.f][seleccionada.c] === n){
-          b.style.borderColor = 'var(--acento)';
-          b.style.backgroundColor = 'var(--seleccion)';
-        }
-        $numeros.appendChild(b);
-      }
-    }
-    
-    function nuevoJuego(){
-      $overlay.style.display='none';
-      const{puz,sol}=generarJuego($dificultad.value);puzzle=puz;solucion=sol;celdasFijas.clear();
-      for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puz[f][c]!==0)celdasFijas.add(`${f}-${c}`);
-      seleccionada=null;errores.clear();$mensaje.textContent='';$mensaje.className='mensaje';
-      renderTablero();renderNumeros();
-    }
-    
-    function mostrarMensaje(t,tipo=''){$mensaje.textContent=t;$mensaje.className='mensaje '+tipo}
-    
-    function comprobarVictoria(){if(puzzle.flat().filter(v=>v===0).length===0&&errores.size===0){$overlay.style.display='flex';}}
-    
-    $tablero.addEventListener('click',(e)=>{
-      const celda=e.target.closest('.celda');if(!celda)return;
-      const f=+celda.dataset.f,c=+celda.dataset.c;
-      if(celdasFijas.has(`${f}-${c}`))return;
-      if(seleccionada&&seleccionada.f===f&&seleccionada.c===c)seleccionada=null;
-      else seleccionada={f,c};
-      renderTablero();renderNumeros(); // Agregamos renderNumeros para iluminar el botón
-    });
-    
-    $numeros.addEventListener('click',(e)=>{
-      const btn=e.target.closest('button');if(!btn||!seleccionada)return;
-      const n=+btn.dataset.n,{f,c}=seleccionada;
-      if(n!==solucion[f][c]){errores.add(`${f}-${c}`);mostrarMensaje('Ese número no va ahí','fallo')}
-      else{errores.delete(`${f}-${c}`);mostrarMensaje('')}
-      puzzle[f][c]=n;seleccionada=null;
-      renderTablero();renderNumeros();comprobarVictoria();
-    });
-    
-    document.getElementById('btn-nuevo').addEventListener('click',nuevoJuego);
-    document.getElementById('btn-borrar').addEventListener('click',()=>{
-      if(!seleccionada)return;const{f,c}=seleccionada;
-      if(celdasFijas.has(`${f}-${c}`))return;
-      puzzle[f][c]=0;errores.delete(`${f}-${c}`);
-      renderTablero();renderNumeros();
-    });
-    
-    document.getElementById('btn-verificar').addEventListener('click',()=>{
-      const vacias=puzzle.flat().filter(v=>v===0).length;
-      if(vacias>0)mostrarMensaje(`Faltan ${vacias} celdas`,'fallo');
-      else if(errores.size>0)mostrarMensaje('Hay errores en el tablero','fallo');
-      else mostrarMensaje('¡Todo correcto! 🎉','exito')
-    });
-    
-    const $btnTema=document.getElementById('btn-tema'),temaGuardado=localStorage.getItem('sudoku-tema')||'oscuro';
-    document.documentElement.setAttribute('data-tema',temaGuardado);
-    $btnTema.addEventListener('click',()=>{
-      const actual=document.documentElement.getAttribute('data-tema'),nuevo=actual==='oscuro'?'claro':'oscuro';
-      document.documentElement.setAttribute('data-tema',nuevo);localStorage.setItem('sudoku-tema',nuevo)
-    });
-    
-    nuevoJuego();
-  </script>
-</body>
-</html>
+    - name: Configurar Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '21'
+
+    - name: Preparar archivos y Capacitor
+      run: |
+        mkdir www
+        cp index.html www/
+        npm init -y
+        npm install @capacitor/core @capacitor/cli @capacitor/android
+        npx cap init "Sudoku" "com.sergiomaslow.sudoku" --web-dir=www
+        npx cap add android
+        npx cap sync android
+
+    - name: Construir APK
+      run: |
+        cd android
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
+        echo "configurations.all { resolutionStrategy { force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24' } }" >> app/build.gradle
+        chmod +x gradlew
+        ./gradlew assembleDebug
+
+    - name: Guardar APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Sudoku-APK
+        path: android/app/build/outputs/apk/debug/app-debug.apk
