@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Sudoku</title>
-  <!-- El icono de la pestaña web (si falla, no muestra nada roto) -->
   <link rel="icon" href="sudokuimagen.jpg" />
   <style>
     :root { --trans: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    /* Paleta Oscura */
     [data-tema="oscuro"] { 
       --bg: #0f1115; --superficie: #181b21; --superficie-2: #222731;
       --bloque-alt: #1d222a; --borde: #2a303c; --borde-fuerte: #475569;
@@ -19,7 +17,6 @@
       --sombra: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
     
-    /* Paleta Clara */
     [data-tema="claro"] { 
       --bg: #e2e8f0; --superficie: #ffffff; --superficie-2: #f1f5f9;
       --bloque-alt: #f8fafc; --borde: #cbd5e1; --borde-fuerte: #64748b;
@@ -30,39 +27,26 @@
     }
     
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--texto-fijo); font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; transition: background var(--trans), color var(--trans); min-height: 100vh; overflow: hidden; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--texto-fijo); font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; transition: background var(--trans), color var(--trans); min-height: 100vh; overflow: hidden; user-select: none; }
     
-    /* Control de vistas (Menú y Juego) */
     .vista { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s, transform 0.3s; overflow-y: auto; }
     .oculto { opacity: 0; pointer-events: none; transform: scale(0.95); }
     
-    /* --- MENÚ PRINCIPAL --- */
     #menu { text-align: center; gap: 20px; }
-    
-    .logo-img { 
-      width: 150px; height: 150px; border-radius: 24px; 
-      box-shadow: 0 10px 30px var(--seleccion); 
-      animation: flotar 3s ease-in-out infinite;
-      object-fit: cover;
-      background: var(--superficie);
-    }
+    .logo-img { width: 150px; height: 150px; border-radius: 24px; box-shadow: 0 10px 30px var(--seleccion); animation: flotar 3s ease-in-out infinite; object-fit: cover; background: var(--superficie); }
     @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     
     h1.menu-titulo { font-size: 42px; letter-spacing: 12px; margin: 0; color: var(--texto-fijo); text-shadow: 0 0 30px var(--seleccion); }
     .sub-titulo { color: var(--texto-suave); font-size: 14px; letter-spacing: 2px; margin-top: 5px; margin-bottom: 20px; }
-    
     .menu-opciones { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; }
     
     .btn-dificultad { padding: 16px; border-radius: 16px; border: 2px solid var(--borde); background: var(--superficie); color: var(--texto-fijo); font-size: 18px; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: var(--sombra); text-transform: uppercase; letter-spacing: 2px; }
     .btn-dificultad:hover, .btn-dificultad.activo { border-color: var(--acento); color: var(--acento); background: var(--mismo-numero); transform: scale(1.02); }
-    
     .btn-jugar { margin-top: 10px; padding: 18px; border-radius: 16px; border: none; background: var(--acento); color: var(--bg); font-size: 20px; font-weight: 900; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 25px var(--seleccion); text-transform: uppercase; letter-spacing: 3px; }
     .btn-jugar:active { transform: scale(0.95); }
 
-    /* --- JUEGO --- */
     #juego { padding: 20px 16px; justify-content: flex-start; }
     .contenedor { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 16px; position: relative; margin-top: 20px;}
-    
     .cabecera { display: flex; justify-content: space-between; align-items: center; }
     .btn-volver { background: none; border: none; color: var(--texto-suave); font-size: 16px; font-weight: 800; cursor: pointer; padding: 0; display: flex; align-items: center; gap: 5px; }
     .btn-volver:hover { color: var(--acento); }
@@ -72,7 +56,7 @@
     .barra .btn:hover { border-color: var(--acento); color: var(--acento); }
     
     .tablero { display: grid; grid-template-columns: repeat(9, 1fr); aspect-ratio: 1 / 1; width: 100%; background: var(--borde-fuerte); border: 2px solid var(--borde-fuerte); border-radius: 12px; overflow: hidden; gap: 1px; box-shadow: var(--sombra); margin-top: 10px;}
-    .celda { background: var(--superficie); display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5.5vw, 30px); color: var(--texto-user); cursor: pointer; transition: all 0.1s ease; }
+    .celda { background: var(--superficie); display: flex; align-items: center; justify-content: center; font-size: clamp(18px, 5.5vw, 30px); color: var(--texto-user); cursor: pointer; transition: all 0.1s ease; touch-action: none; }
     .celda.bloque-alt { background: var(--bloque-alt); }
     .celda:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid var(--borde-fuerte); }
     .celda:nth-child(n+19):nth-child(-n+27), .celda:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--borde-fuerte); }
@@ -85,7 +69,7 @@
     @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
     
     .numeros { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-top: 10px; }
-    .numeros button { aspect-ratio: 1 / 1; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--acento); font-size: clamp(18px, 4.5vw, 24px); font-weight: 900; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s;}
+    .numeros button { aspect-ratio: 1 / 1; border-radius: 12px; border: 1.5px solid var(--borde); background: var(--superficie); color: var(--acento); font-size: clamp(18px, 4.5vw, 24px); font-weight: 900; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.2s; touch-action: none;}
     .numeros button:hover { border-color: var(--acento); background: var(--mismo-numero); }
     .numeros button.agotado { opacity: 0.2; pointer-events: none; }
     .numeros button.activo { background: var(--acento); color: var(--bg); border-color: var(--acento); }
@@ -101,7 +85,6 @@
 </head>
 <body>
 
-  <!-- VISTA 1: MENÚ PRINCIPAL -->
   <div class="vista" id="menu">
     <img src="sudokuimagen.jpg" alt="Logo Sudoku" class="logo-img">
     <div>
@@ -116,7 +99,6 @@
     </div>
   </div>
 
-  <!-- VISTA 2: EL JUEGO -->
   <div class="vista oculto" id="juego">
     <div class="contenedor">
       <div class="overlay" id="overlay">
@@ -155,8 +137,7 @@
       if(!audioCtx) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
+      osc.type = 'sine'; osc.frequency.value = freq;
       gain.gain.setValueAtTime(0, audioCtx.currentTime);
       gain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.1);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2);
@@ -168,21 +149,18 @@
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
       if (isPlaying) {
-        clearInterval(musicInterval);
-        $btnMusicaJuego.textContent = '🔇 Música';
-        isPlaying = false;
+        clearInterval(musicInterval); $btnMusicaJuego.textContent = '🔇 Música'; isPlaying = false;
       } else {
-        $btnMusicaJuego.textContent = '🔊 Música';
-        isPlaying = true;
-        let i = 0;
-        playTone(notas[i]);
-        musicInterval = setInterval(() => {
-          i = (i + 1) % notas.length;
-          playTone(notas[i]);
-        }, 800); 
+        $btnMusicaJuego.textContent = '🔊 Música'; isPlaying = true;
+        let i = 0; playTone(notas[i]);
+        musicInterval = setInterval(() => { i = (i + 1) % notas.length; playTone(notas[i]); }, 800); 
       }
     }
     $btnMusicaJuego.addEventListener('click', toggleMusica);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && isPlaying) toggleMusica(); 
+    });
 
     // --- LÓGICA DEL SUDOKU ---
     const TAM=9,NRS=[1,2,3,4,5,6,7,8,9];
@@ -199,7 +177,7 @@
       document.getElementById('juego').classList.add('oculto');
       document.getElementById('menu').classList.remove('oculto');
       $overlay.style.display='none';
-      if (isPlaying) toggleMusica(); // Pausar música al salir
+      if (isPlaying) toggleMusica(); 
     }
 
     document.querySelectorAll('.btn-dificultad').forEach(btn => {
@@ -269,6 +247,7 @@
     function mostrarMensaje(t,tipo=''){$mensaje.textContent=t;$mensaje.className='mensaje '+tipo}
     function comprobarVictoria(){if(puzzle.flat().filter(v=>v===0).length===0&&errores.size===0){$overlay.style.display='flex';}}
     
+    // --- INTERACCIÓN CON EL TABLERO (CLIC Y ARRASTRE) ---
     $tablero.addEventListener('click',(e)=>{
       const celda=e.target.closest('.celda');if(!celda)return;
       const f=+celda.dataset.f,c=+celda.dataset.c;
@@ -277,7 +256,59 @@
       else { seleccionada={f,c}; numActivo = puzzle[f][c] !== 0 ? puzzle[f][c] : null; }
       renderTablero();renderNumeros(); 
     });
+
+    // --- NUEVA FUNCIÓN: ARRASTRAR NÚMEROS ---
+    let isDragging = false;
     
+    $numeros.addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      isDragging = true;
+      numActivo = +btn.dataset.n;
+      renderNumeros();
+    });
+
+    $tablero.addEventListener('pointermove', (e) => {
+      if(!isDragging) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const celda = el ? el.closest('.celda') : null;
+      
+      if(celda) {
+        // Resaltado visual al arrastrar
+        document.querySelectorAll('.celda.hover-drag').forEach(c => c.classList.remove('hover-drag'));
+        celda.classList.add('hover-drag');
+      }
+    });
+
+    $tablero.addEventListener('pointerup', (e) => {
+      if(!isDragging) return;
+      isDragging = false;
+      document.querySelectorAll('.celda.hover-drag').forEach(c => c.classList.remove('hover-drag'));
+      
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const celda = el ? el.closest('.celda') : null;
+      
+      if(celda) {
+        const f = +celda.dataset.f;
+        const c = +celda.dataset.c;
+        if(!celdasFijas.has(`${f}-${c}`)) {
+           if(numActivo !== null) {
+             if(numActivo !== solucion[f][c]) {
+               errores.add(`${f}-${c}`); mostrarMensaje('Ese número no va ahí','fallo');
+             } else {
+               errores.delete(`${f}-${c}`); mostrarMensaje('');
+             }
+             puzzle[f][c] = numActivo;
+             seleccionada = null;
+             renderTablero(); renderNumeros(); comprobarVictoria();
+           }
+        }
+      }
+      numActivo = null;
+      renderNumeros();
+    });
+
+    // Clic normal en el teclado numérico
     $numeros.addEventListener('click',(e)=>{
       const btn=e.target.closest('button');if(!btn)return;
       const n=+btn.dataset.n;
