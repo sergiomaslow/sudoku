@@ -104,6 +104,7 @@
 </head>
 <body>
 
+  <!-- VISTA 1: MENÚ PRINCIPAL -->
   <div class="vista" id="menu">
     <img src="sudokuimagen.jpg" alt="Logo Sudoku" class="logo-img">
     <div>
@@ -119,6 +120,7 @@
     </div>
   </div>
 
+  <!-- VISTA 2: LOGROS -->
   <div class="vista oculto" id="logros">
     <div class="caja-logros">
       <h2>🏆 Logros</h2>
@@ -138,9 +140,11 @@
     </div>
   </div>
 
+  <!-- VISTA 3: EL JUEGO -->
   <div class="vista oculto" id="juego">
     <div class="contenedor">
       
+      <!-- Victoria -->
       <div class="overlay" id="overlay-victoria">
         <h2>¡Ganaste! 🏆</h2>
         <p id="msg-record" style="color: var(--texto-user); font-weight: 900; display: none;">¡Nuevo Récord!</p>
@@ -148,6 +152,7 @@
         <button onclick="volverAlMenu()">Volver al menú</button>
       </div>
 
+      <!-- Derrota -->
       <div class="overlay derrota" id="overlay-derrota">
         <h2>¡Perdiste! 💔</h2>
         <p>Has cometido 3 errores.</p>
@@ -180,8 +185,8 @@
       <p id="mensaje" class="mensaje"></p>
     </div>
   </div>
+
   <script>
-    <script>
     // --- SISTEMA DE MÚSICA ---
     let audioCtx, isPlaying = false, musicInterval;
     const $btnMusicaJuego = document.getElementById('btn-musica-juego');
@@ -334,7 +339,7 @@
       $tablero.innerHTML='';$tablero.appendChild(frag);
     }
     
-    function renderNumeros(){
+        function renderNumeros(){
       const conteo=Array(10).fill(0);
       for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puzzle[f][c]!==0)conteo[puzzle[f][c]]++;
       $numeros.innerHTML='';
