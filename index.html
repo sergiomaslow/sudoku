@@ -32,7 +32,6 @@
     .vista { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.3s, transform 0.3s; overflow-y: auto; }
     .oculto { opacity: 0; pointer-events: none; transform: scale(0.95); }
     
-    /* --- MENÚ PRINCIPAL --- */
     #menu { text-align: center; gap: 20px; }
     .logo-img { width: 130px; height: 130px; border-radius: 24px; box-shadow: 0 10px 30px var(--seleccion); animation: flotar 3s ease-in-out infinite; object-fit: cover; background: var(--superficie); }
     @keyframes flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -48,7 +47,6 @@
     .btn-logros { padding: 16px; border-radius: 16px; border: 2px solid var(--borde); background: transparent; color: var(--texto-fijo); font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 2px; }
     .btn-logros:hover { border-color: var(--texto-user); color: var(--texto-user); }
 
-    /* --- PANTALLA DE LOGROS --- */
     #logros { background: var(--bg); z-index: 20; }
     .caja-logros { background: var(--superficie); padding: 30px; border-radius: 24px; width: 100%; max-width: 350px; box-shadow: var(--sombra); text-align: center; border: 2px solid var(--borde); }
     .caja-logros h2 { color: var(--acento); margin-top: 0; font-size: 28px; letter-spacing: 2px; }
@@ -56,7 +54,6 @@
     .record-item:last-child { border-bottom: none; }
     .record-item span:last-child { color: var(--texto-user); font-family: monospace; font-size: 18px; }
 
-    /* --- JUEGO --- */
     #juego { padding: 20px 16px; justify-content: flex-start; }
     .contenedor { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 12px; position: relative; margin-top: 10px;}
     
@@ -95,7 +92,6 @@
     .mensaje { text-align: center; min-height: 1.5em; margin: 5px 0 0; font-size: 14px; color: var(--texto-suave); letter-spacing: 1px; }
     .mensaje.fallo { color: var(--error); }
     
-    /* OVERLAYS (Victoria / Derrota) */
     .overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); opacity: 0.97; display: none; flex-direction: column; align-items: center; justify-content: center; border-radius: 12px; z-index: 10; text-align: center; padding: 20px; animation: aparecer 0.4s ease; }
     .overlay h2 { font-size: 38px; color: var(--acento); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 20px var(--seleccion); margin-bottom: 10px;}
     .overlay.derrota h2 { color: var(--error); text-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
@@ -108,7 +104,6 @@
 </head>
 <body>
 
-  <!-- VISTA 1: MENÚ PRINCIPAL -->
   <div class="vista" id="menu">
     <img src="sudokuimagen.jpg" alt="Logo Sudoku" class="logo-img">
     <div>
@@ -120,11 +115,10 @@
       <button class="btn-dificultad activo" data-dif="medio">Medio</button>
       <button class="btn-dificultad" data-dif="dificil">Difícil</button>
       <button class="btn-jugar" id="btn-iniciar">Jugar</button>
-      <button class="btn-logros" onclick="mostrarLogros()">🏆 Récords</button>
+      <button class="btn-logros" id="btn-logros">🏆 Récords</button>
     </div>
   </div>
 
-  <!-- VISTA 2: LOGROS -->
   <div class="vista oculto" id="logros">
     <div class="caja-logros">
       <h2>🏆 Logros</h2>
@@ -140,15 +134,13 @@
         <span>Difícil</span>
         <span id="rec-dificil">--:--</span>
       </div>
-      <button class="btn-jugar" style="margin-top: 25px;" onclick="cerrarLogros()">Volver</button>
+      <button class="btn-jugar" style="margin-top: 25px;" id="btn-cerrar-logros">Volver</button>
     </div>
   </div>
 
-  <!-- VISTA 3: EL JUEGO -->
   <div class="vista oculto" id="juego">
     <div class="contenedor">
       
-      <!-- Victoria -->
       <div class="overlay" id="overlay-victoria">
         <h2>¡Ganaste! 🏆</h2>
         <p id="msg-record" style="color: var(--texto-user); font-weight: 900; display: none;">¡Nuevo Récord!</p>
@@ -156,7 +148,6 @@
         <button onclick="volverAlMenu()">Volver al menú</button>
       </div>
 
-      <!-- Derrota -->
       <div class="overlay derrota" id="overlay-derrota">
         <h2>¡Perdiste! 💔</h2>
         <p>Has cometido 3 errores.</p>
@@ -173,7 +164,6 @@
         </div>
       </header>
 
-      <!-- Cronómetro y Vidas -->
       <div class="info-juego">
         <div>⏱️ <span class="cronometro" id="cronometro">00:00</span></div>
         <div class="vidas" id="vidas">❤️❤️❤️</div>
@@ -190,8 +180,8 @@
       <p id="mensaje" class="mensaje"></p>
     </div>
   </div>
-
   <script>
+    <script>
     // --- SISTEMA DE MÚSICA ---
     let audioCtx, isPlaying = false, musicInterval;
     const $btnMusicaJuego = document.getElementById('btn-musica-juego');
@@ -254,7 +244,7 @@
       const actual = localStorage.getItem(key);
       if (!actual || tiempoSeg < parseInt(actual)) {
         localStorage.setItem(key, tiempoSeg);
-        return true; // Nuevo record
+        return true; 
       }
       return false;
     }
@@ -268,6 +258,9 @@
       document.getElementById('logros').classList.add('oculto');
       document.getElementById('menu').classList.remove('oculto');
     }
+
+    document.getElementById('btn-logros').addEventListener('click', mostrarLogros);
+    document.getElementById('btn-cerrar-logros').addEventListener('click', cerrarLogros);
 
     // --- CONTROL DEL JUEGO ---
     function iniciarJuego() {
@@ -347,4 +340,152 @@
       $numeros.innerHTML='';
       for(const n of NRS){
         const b=document.createElement('button');b.textContent=n;b.dataset.n=n;
-        if(conteo[n]>=9
+        if(conteo[n]>=9)b.classList.add('agotado');
+        if(numActivo === n) b.classList.add('activo');
+        $numeros.appendChild(b);
+      }
+    }
+    
+    function nuevoJuego(){
+      $overlayVictoria.style.display='none';
+      $overlayDerrota.style.display='none';
+      const{puz,sol}=generarJuego(dificultadActual);puzzle=puz;solucion=sol;celdasFijas.clear();
+      for(let f=0;f<TAM;f++)for(let c=0;c<TAM;c++)if(puz[f][c]!==0)celdasFijas.add(`${f}-${c}`);
+      seleccionada=null;errores.clear();numActivo=null;$mensaje.textContent='';$mensaje.className='mensaje';
+      
+      tiempo = 0;
+      vidas = 3;
+      actualizarCronometro();
+      actualizarVidas();
+      juegoActivo = true;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(actualizarTimer, 1000);
+
+      renderTablero();renderNumeros();
+    }
+    
+    function mostrarMensaje(t,tipo=''){$mensaje.textContent=t;$mensaje.className='mensaje '+tipo}
+    
+    function comprobarVictoria(){
+      if(puzzle.flat().filter(v=>v===0).length===0&&errores.size===0){
+        juegoActivo = false;
+        clearInterval(timerInterval);
+        
+        const esNuevoRecord = guardarRecord(dificultadActual, tiempo);
+        const $msgRecord = document.getElementById('msg-record');
+        const $tiempoVictoria = document.getElementById('tiempo-victoria');
+        
+        $tiempoVictoria.textContent = formatTiempo(tiempo);
+        if(esNuevoRecord) {
+          $msgRecord.style.display = 'block';
+        } else {
+          $msgRecord.style.display = 'none';
+        }
+        
+        $overlayVictoria.style.display='flex';
+      }
+    }
+
+    function gestionarError(f, c) {
+      vidas--;
+      actualizarVidas();
+      errores.add(`${f}-${c}`);
+      mostrarMensaje('Ese número no va ahí', 'fallo');
+      if(vidas <= 0) {
+        juegoActivo = false;
+        clearInterval(timerInterval);
+        document.getElementById('tiempo-derrota').textContent = formatTiempo(tiempo);
+        $overlayDerrota.style.display='flex';
+      }
+    }
+
+    function colocarNumero(f, c, n) {
+      if(!juegoActivo) return;
+      if(celdasFijas.has(`${f}-${c}`)) return;
+      if(errores.has(`${f}-${c}`) && puzzle[f][c] === n) return;
+
+      if(n !== solucion[f][c]) {
+        if(!errores.has(`${f}-${c}`)) gestionarError(f,c);
+        puzzle[f][c] = n;
+      } else {
+        errores.delete(`${f}-${c}`);
+        mostrarMensaje('');
+        puzzle[f][c] = n;
+      }
+      seleccionada = null;
+      renderTablero(); renderNumeros(); comprobarVictoria();
+    }
+    
+    $tablero.addEventListener('click',(e)=>{
+      const celda=e.target.closest('.celda');if(!celda)return;
+      const f=+celda.dataset.f,c=+celda.dataset.c;
+      if(celdasFijas.has(`${f}-${c}`))return;
+      
+      if(seleccionada&&seleccionada.f===f&&seleccionada.c===c){ seleccionada=null; numActivo=null; } 
+      else { seleccionada={f,c}; numActivo = puzzle[f][c] !== 0 ? puzzle[f][c] : null; }
+      renderTablero();renderNumeros(); 
+    });
+
+    // --- ARRASTRAR NÚMEROS ---
+    let isDragging = false;
+    $numeros.addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest('button'); if(!btn) return;
+      isDragging = true; numActivo = +btn.dataset.n; renderNumeros();
+    });
+
+    $tablero.addEventListener('pointermove', (e) => {
+      if(!isDragging) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const celda = el ? el.closest('.celda') : null;
+      if(celda) {
+        document.querySelectorAll('.celda.hover-drag').forEach(c => c.classList.remove('hover-drag'));
+        celda.classList.add('hover-drag');
+      }
+    });
+
+    $tablero.addEventListener('pointerup', (e) => {
+      if(!isDragging) return;
+      isDragging = false;
+      document.querySelectorAll('.celda.hover-drag').forEach(c => c.classList.remove('hover-drag'));
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const celda = el ? el.closest('.celda') : null;
+      if(celda && numActivo !== null) {
+        const f = +celda.dataset.f; const c = +celda.dataset.c;
+        colocarNumero(f, c, numActivo);
+      }
+      numActivo = null; renderNumeros();
+    });
+
+    $numeros.addEventListener('click',(e)=>{
+      const btn=e.target.closest('button');if(!btn)return;
+      numActivo = +btn.dataset.n; 
+      if(!seleccionada) { renderNumeros(); return; }
+      const {f,c}=seleccionada;
+      colocarNumero(f, c, numActivo);
+    });
+    
+    document.getElementById('btn-nuevo').addEventListener('click',nuevoJuego);
+    document.getElementById('btn-borrar').addEventListener('click',()=>{
+      if(!seleccionada)return;const{f,c}=seleccionada;
+      if(celdasFijas.has(`${f}-${c}`))return;
+      puzzle[f][c]=0;errores.delete(`${f}-${c}`);
+      renderTablero();renderNumeros();
+    });
+    
+    document.getElementById('btn-verificar').addEventListener('click',()=>{
+      if(!juegoActivo) return;
+      const vacias=puzzle.flat().filter(v=>v===0).length;
+      if(vacias>0)mostrarMensaje(`Faltan ${vacias} celdas`,'fallo');
+      else if(errores.size>0)mostrarMensaje('Hay errores en el tablero','fallo');
+      else mostrarMensaje('¡Todo correcto! 🎉','exito')
+    });
+    
+    const $btnTema=document.getElementById('btn-tema'),temaGuardado=localStorage.getItem('sudoku-tema')||'oscuro';
+    document.documentElement.setAttribute('data-tema',temaGuardado);
+    $btnTema.addEventListener('click',()=>{
+      const actual=document.documentElement.getAttribute('data-tema'),nuevo=actual==='oscuro'?'claro':'oscuro';
+      document.documentElement.setAttribute('data-tema',nuevo);localStorage.setItem('sudoku-tema',nuevo)
+    });
+  </script>
+</body>
+</html>
